@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qyg.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.qyg.entity.Product">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="category" property="category" jdbcType="TINYINT"/>
+        <result column="type" property="type" jdbcType="TINYINT"/>
+        <result column="images" property="images" jdbcType="VARCHAR"/>
+        <result column="video" property="video" jdbcType="VARCHAR"/>
+        <result column="base_price" property="basePrice" jdbcType="DECIMAL"/>
+        <result column="current_price" property="currentPrice" jdbcType="DECIMAL"/>
+        <result column="stock" property="stock" jdbcType="INTEGER"/>
+        <result column="sales" property="sales" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, description, category, type, images, video, base_price, current_price, 
+        stock, sales, status, create_time, update_time
+    </sql>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from product
+        where id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from product
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') 
+                or description like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="category != null">
+                and category = #{category}
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Integer">
+        select count(*)
+        from product
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') 
+                or description like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="category != null">
+                and category = #{category}
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.qyg.entity.Product" useGeneratedKeys="true" keyProperty="id">
+        insert into product (name, description, category, type, images, video, base_price, 
+                           current_price, stock, sales, status, create_time, update_time)
+        values (#{name}, #{description}, #{category}, #{type}, #{images}, #{video}, #{basePrice}, 
+                #{currentPrice}, #{stock}, #{sales}, #{status}, now(), now())
+    </insert>
+
+    <update id="update" parameterType="com.qyg.entity.Product">
+        update product
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="images != null">images = #{images},</if>
+            <if test="video != null">video = #{video},</if>
+            <if test="basePrice != null">base_price = #{basePrice},</if>
+            <if test="currentPrice != null">current_price = #{currentPrice},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="sales != null">sales = #{sales},</if>
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from product where id = #{id}
+    </delete>
+
+    <update id="updateStatus">
+        update product set status = #{status}, update_time = now() where id = #{id}
+    </update>
+
+    <update id="updatePrice">
+        update product set current_price = #{currentPrice}, update_time = now() where id = #{id}
+    </update>
+
+    <update id="updateStock">
+        update product set stock = #{stock}, update_time = now() where id = #{id}
+    </update>
+
+    <update id="updateSales">
+        update product set sales = #{sales}, update_time = now() where id = #{id}
+    </update>
+
+</mapper> 
